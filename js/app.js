@@ -27,12 +27,77 @@ var App = React.createClass({
     render:function(){
         return (
             <div className = "app">
+                <Add />
                 <h3> Новости </h3>
-            <News data = {my_news}/>
+                <News data = {my_news}/>
             </div>
         );
     }
 });
+
+var Add = React.createClass({
+    getInitialState: function() {
+      return {
+        agreeNotChecked: true,
+        authorIsEmpty: true,
+        textIsEmpty: true
+      };
+    },
+    componentDidMount: function() {
+      ReactDOM.findDOMNode(this.refs.author).focus();
+    },
+    onBtnClickHandler: function(e) {
+      e.preventDefault();
+      var author = ReactDOM.findDOMNode(this.refs.author).value;
+      var text = ReactDOM.findDOMNode(this.refs.text).value;
+      alert(author + '\n' + text);
+    },
+    onCheckRuleClick: function(e) {
+      this.setState({agreeNotChecked: !this.state.agreeNotChecked});
+    },
+    onFieldChange: function(fieldName, e) {
+      if (e.target.value.trim().length > 0) {
+        this.setState({[''+fieldName]:false})
+      } else {
+        this.setState({[''+fieldName]:true})
+      }
+    },
+    render: function() {
+      var agreeNotChecked = this.state.agreeNotChecked,
+          authorIsEmpty = this.state.authorIsEmpty,
+          textIsEmpty = this.state.textIsEmpty;
+      return (
+        <form className='add cf'>
+          <input
+            type='text'
+            className='add__author'
+            onChange={this.onFieldChange.bind(this, 'authorIsEmpty')}
+            placeholder='Ваше имя'
+            ref='author'
+          />
+          <textarea
+            className='add__text'
+            onChange={this.onFieldChange.bind(this, 'textIsEmpty')}
+            placeholder='Текст новости'
+            ref='text'
+          ></textarea>
+          <label className='add__checkrule'>
+            <input type='checkbox' ref='checkrule' onChange={this.onCheckRuleClick}/>Я согласен с правилами
+          </label>
+  
+          <button
+            className='add__btn'
+            onClick={this.onBtnClickHandler}
+            ref='alert_button'
+            disabled={agreeNotChecked || authorIsEmpty || textIsEmpty}
+            >
+            Показать alert
+          </button>
+        </form>
+      );
+    }
+  });
+
 
 
 var Article = React.createClass({
@@ -83,10 +148,6 @@ var News = React.createClass({
         }
     },
 
-    onTotalNewsClick:function(){
-        this.setState({counter: ++this.state.counter});
-    },
-
     render:function(){
         var data = this.props.data;
 
@@ -105,8 +166,7 @@ var News = React.createClass({
         return (
         <div className = 'news'>
             {newsTemplate}
-            <strong className = { 'news__count ' + (data.length>0 ? '' : 'none')}
-            onClick = {this.onTotalNewsClick}>
+            <strong className = { 'news__count ' + (data.length>0 ? '' : 'none')}>
              Всего новостей: {data.length}
              </strong>
         </div>
